@@ -137,17 +137,15 @@ This source hierarchy is important for trust. Official sources confirm facts, tr
 
 ## Accuracy Positioning
 
-The project does not claim to predict stock prices with 85-90% accuracy. That would be unrealistic and misleading.
+The project does not claim to predict stock prices with 90-95% accuracy. That would be unrealistic and misleading.
 
-Instead, the goal is 85-90% research reliability by improving:
+Instead, the goal is 90-95% research reliability by improving:
 
 - Company identity verification
 - Structured data coverage
 - Source-backed reasoning
 - Transparent scoring
 - Confidence reduction when data is incomplete
-
-This is the right interview explanation: the agent is designed for disciplined research, not guaranteed market prediction.
 
 ## Important Disclaimer
 
