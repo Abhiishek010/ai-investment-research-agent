@@ -393,6 +393,17 @@ type KnownTickerAlias = {
   resolutionNote?: string;
 };
 
+type TickerProfileOverride = Partial<Pick<CompanyProfile, "sector" | "industry" | "description">>;
+
+const TICKER_PROFILE_OVERRIDES: Record<string, TickerProfileOverride> = {
+  "SWIGGY.NS": {
+    sector: "Consumer Services",
+    industry: "Online Food Delivery and Quick Commerce",
+    description:
+      "Swiggy Limited operates an on-demand convenience platform for food delivery, quick commerce, dining, and related consumer services in India.",
+  },
+};
+
 const KNOWN_TICKER_ALIASES: Record<string, KnownTickerAlias> = {
   microsoft: { symbol: "MSFT", name: "Microsoft Corporation" },
   msft: { symbol: "MSFT", name: "Microsoft Corporation" },
@@ -1799,16 +1810,18 @@ function normalizeProfile(searchResult: FmpSearchResult, profile: FmpProfile, co
   const securityType = alias?.securityType ?? searchResult.type ?? "Stock";
   const inferredMarketStatus: CompanyProfile["marketStatus"] =
     alias?.marketStatus ?? (isEtfResult(searchResult) ? "ETF/Fund" : ticker === "UNKNOWN" ? "Unverified" : "Public Company");
+  const profileOverride = TICKER_PROFILE_OVERRIDES[ticker.toUpperCase()];
 
   return {
     name,
     ticker,
     exchange,
-    sector: inferredMarketStatus === "ETF/Fund" ? "ETF / Fund" : profile.sector ?? "Unknown",
-    industry: inferredMarketStatus === "ETF/Fund" ? "Exchange-traded fund or listed fund" : profile.industry ?? "Unknown",
+    sector: inferredMarketStatus === "ETF/Fund" ? "ETF / Fund" : profileOverride?.sector ?? profile.sector ?? "Unknown",
+    industry: inferredMarketStatus === "ETF/Fund" ? "Exchange-traded fund or listed fund" : profileOverride?.industry ?? profile.industry ?? "Unknown",
     country: profile.country ?? "Unknown",
     currency: profile.currency ?? searchResult.currency ?? (ticker.endsWith(".NS") || ticker.endsWith(".BO") ? "INR" : "USD"),
     description:
+      profileOverride?.description ??
       profile.description ??
       alias?.resolutionNote ??
       `${name} was resolved from live market data, but no company description was provided by the data source.`,
@@ -2059,6 +2072,13 @@ function getExchangeCode(exchange: string) {
   return normalized.replace(/[^a-z]/g, "") || "xnas";
 }
 
+function buildFmpReferenceUrl(symbol: string) {
+  const url = new URL("https://site.financialmodelingprep.com/developer/docs");
+  url.searchParams.set("search", `profile ${symbol}`);
+
+  return url.toString();
+}
+
 function buildLiveSources(profile: CompanyProfile, rawProfile: FmpProfile): SourceReference[] {
   const tickerLower = profile.ticker.toLowerCase();
   const exchangeCode = getExchangeCode(profile.exchange);
@@ -2066,12 +2086,12 @@ function buildLiveSources(profile: CompanyProfile, rawProfile: FmpProfile): Sour
 
   const sources: SourceReference[] = [
     {
-      label: "Financial Modeling Prep Live Data",
-      url: "https://site.financialmodelingprep.com/developer/docs",
-      note: "Live provider used for company search, profile, financial statements, ratios, and stock news.",
+      label: `FMP API Profile - ${profile.ticker}`,
+      url: buildFmpReferenceUrl(profile.ticker),
+      note: `Financial Modeling Prep provider reference. The server uses the protected API endpoint /stable/profile?symbol=${profile.ticker} with a private API key, so this is shown as server-side provider metadata instead of a browser source.`,
       sourceType: "Trusted Third Party",
       credibility: "High",
-      useFor: "Resolve ticker identity and collect normalized market and financial data.",
+      useFor: "Resolve ticker identity and collect normalized company profile, market, and financial fields.",
     },
     {
       label: `Yahoo Finance - ${profile.ticker}`,

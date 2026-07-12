@@ -1952,3 +1952,22 @@ h3 {
 
 
 
+
+.research-vault .provider-reference {
+  border: 1px dashed rgba(89, 93, 80, 0.32);
+  border-radius: 10px;
+  margin-top: 10px;
+  padding: 14px 16px;
+  background: #ece1d4;
+  cursor: default;
+}
+
+.research-vault .provider-reference:first-child {
+  margin-top: 16px;
+}
+
+.research-vault .source-badge.provider-api {
+  border-color: rgba(72, 79, 70, 0.28);
+  background: #e8ecdf;
+  color: #3e4b36;
+}

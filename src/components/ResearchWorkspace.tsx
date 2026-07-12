@@ -75,6 +75,14 @@ function shouldShowPublicStockSignals(report: ResearchReport) {
   );
 }
 
+function isServerSideProviderReference(source: ResearchReport["sources"][number]) {
+  return (
+    source.label.toLowerCase().startsWith("fmp api") ||
+    source.url.includes("site.financialmodelingprep.com") ||
+    source.note.toLowerCase().includes("protected api endpoint")
+  );
+}
+
 function getMarketNote(report: ResearchReport) {
   if (isGuidedBotReport(report)) {
     return "This is a custom project showcase response, not a public-stock report. The score reflects the AI bot's clarity, guardrails, and guided reasoning.";
@@ -656,6 +664,8 @@ function ReportView({ report }: { report: ResearchReport }) {
         "Try the legal company name, exact listed ticker, or the public parent company.",
       ]
     : [...report.strengths.slice(0, 2), ...report.risks.slice(0, 1)];
+  const providerReferences = report.sources.filter(isServerSideProviderReference);
+  const publicSources = report.sources.filter((source) => !isServerSideProviderReference(source));
 
   async function handleDownloadPdf() {
     if (!reportRef.current || isExportingPdf) {
@@ -959,27 +969,40 @@ function ReportView({ report }: { report: ResearchReport }) {
             </section>
 
             <section>
-              <p className="eyebrow">Sources checked</p>
+              <p className="eyebrow">Sources and provider references</p>
               <p className="simple-copy">
-                Official sources confirm facts. Trusted third-party sources reduce single-source
+                Official sources confirm facts. Provider API references and trusted third-party sources reduce single-source
                 bias. Research blogs are shown as opinion only.
               </p>
               <div className="news-list source-list">
-                {report.sources.length > 0 ? (
-                  report.sources.map((source, index) => (
-                    <a href={source.url} target="_blank" rel="noreferrer" key={`${source.url}-${source.label}-${source.sourceType}-${index}`}>
-                      <div className="source-title-row">
-                        <strong>{source.label}</strong>
-                        <span
-                          className={`source-badge ${source.sourceType.toLowerCase().replaceAll(" ", "-")}`}
-                        >
-                          {source.sourceType} - {source.credibility}
-                        </span>
+                {publicSources.length > 0 || providerReferences.length > 0 ? (
+                  <>
+                    {publicSources.map((source, index) => (
+                      <a href={source.url} target="_blank" rel="noreferrer" key={`${source.url}-${source.label}-${source.sourceType}-${index}`}>
+                        <div className="source-title-row">
+                          <strong>{source.label}</strong>
+                          <span
+                            className={`source-badge ${source.sourceType.toLowerCase().replaceAll(" ", "-")}`}
+                          >
+                            {source.sourceType} - {source.credibility}
+                          </span>
+                        </div>
+                        <span>{source.note}</span>
+                        <em>{source.useFor}</em>
+                      </a>
+                    ))}
+
+                    {providerReferences.map((source, index) => (
+                      <div className="provider-reference" key={`${source.label}-${index}`}>
+                        <div className="source-title-row">
+                          <strong>{source.label}</strong>
+                          <span className="source-badge provider-api">Server-side API</span>
+                        </div>
+                        <span>{source.note}</span>
+                        <em>{source.useFor}</em>
                       </div>
-                      <span>{source.note}</span>
-                      <em>{source.useFor}</em>
-                    </a>
-                  ))
+                    ))}
+                  </>
                 ) : (
                   <p className="simple-copy">No verified public-market sources were found for this input.</p>
                 )}
