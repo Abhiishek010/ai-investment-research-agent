@@ -1,0 +1,22 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "outDir": ".accuracy-build",
+    "rootDir": ".",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "incremental": false,
+    "tsBuildInfoFile": ".accuracy-build/tsconfig.tsbuildinfo",
+    "types": ["node"]
+  },
+  "include": [
+    "tests/**/*.ts",
+    "src/lib/investment/types.ts",
+    "src/lib/investment/scoring.ts",
+    "src/lib/investment/reporting.ts",
+    "src/lib/investment/inputSanitizer.ts"
+  ],
+  "exclude": ["node_modules", ".next", ".accuracy-build"]
+}
+
