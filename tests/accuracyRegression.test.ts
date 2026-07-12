@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { buildResearchReport, getVerdict } from "../src/lib/investment/reporting";
-import { sanitizeCompanyNameInput } from "../src/lib/investment/inputSanitizer";
+import { sanitizeCompanyNameDraft, sanitizeCompanyNameInput } from "../src/lib/investment/inputSanitizer";
 import { scoreGuidedBotProject, scoreInvestment, scoreUnverifiedCompany } from "../src/lib/investment/scoring";
 import type { CompanyProfile, FinancialMetrics, NewsItem, SourceReference } from "../src/lib/investment/types";
 
@@ -103,6 +103,9 @@ const tests: TestCase[] = [
       assert.equal(sanitizeCompanyNameInput("M&M"), "M&M");
       assert.equal(sanitizeCompanyNameInput("C3.ai"), "C3.ai");
       assert.equal(sanitizeCompanyNameInput("InsideIIM / Altuni AI Labs"), "InsideIIM / Altuni AI Labs");
+      assert.equal(sanitizeCompanyNameDraft("Reliance "), "Reliance ");
+      assert.equal(sanitizeCompanyNameDraft("Tata Motors"), "Tata Motors");
+      assert.equal(sanitizeCompanyNameDraft("<b>Tata Motors</b>"), " Tata Motors ");
       assert.equal(sanitizeCompanyNameInput("   Reliance\u0000 Industries   "), "Reliance Industries");
       assert.ok(!sanitizeCompanyNameInput("<img src=x onerror=alert(1)>Tesla").includes("<"));
       assert.ok(!sanitizeCompanyNameInput("<img src=x onerror=alert(1)>Tesla").includes(">"));
@@ -307,6 +310,7 @@ if (failures.length > 0) {
 }
 
 console.log(`Accuracy regression suite passed: ${passed}/${tests.length} checks.`);
+
 
 
 

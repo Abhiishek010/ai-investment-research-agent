@@ -2,7 +2,7 @@
 
 import { FormEvent, useMemo, useRef, useState } from "react";
 import type { ResearchReport, ScoreCategory } from "@/lib/investment/types";
-import { MAX_COMPANY_NAME_LENGTH, sanitizeCompanyNameInput } from "@/lib/investment/inputSanitizer";
+import { MAX_COMPANY_NAME_LENGTH, sanitizeCompanyNameDraft, sanitizeCompanyNameInput } from "@/lib/investment/inputSanitizer";
 
 const sampleCompanies = ["Microsoft", "Apple", "NVIDIA", "Tesla", "Reliance", "Airtel"];
 
@@ -1082,7 +1082,7 @@ export function ResearchWorkspace() {
             <input
               id="companyName"
               value={companyName}
-              onChange={(event) => setCompanyName(sanitizeCompanyNameInput(event.target.value))}
+              onChange={(event) => setCompanyName(sanitizeCompanyNameDraft(event.target.value))}
               placeholder="Example: Microsoft"
               minLength={2}
               maxLength={MAX_COMPANY_NAME_LENGTH}
@@ -1146,6 +1146,7 @@ export function ResearchWorkspace() {
     </main>
   );
 }
+
 
 
 

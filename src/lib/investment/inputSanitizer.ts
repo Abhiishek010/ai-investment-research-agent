@@ -6,13 +6,21 @@ const WHITESPACE = /\s+/g;
 
 export const MAX_COMPANY_NAME_LENGTH = 80;
 
-export function sanitizeCompanyNameInput(value: string) {
+function removeUnsafeCharacters(value: string) {
   return value
     .normalize("NFKC")
     .replace(BLOCKED_HTML_BLOCKS, " ")
     .replace(HTML_TAG, " ")
     .replace(LEFTOVER_ANGLE_BRACKETS, " ")
-    .replace(CONTROL_CHARACTERS, " ")
+    .replace(CONTROL_CHARACTERS, " ");
+}
+
+export function sanitizeCompanyNameDraft(value: string) {
+  return removeUnsafeCharacters(value).slice(0, MAX_COMPANY_NAME_LENGTH);
+}
+
+export function sanitizeCompanyNameInput(value: string) {
+  return removeUnsafeCharacters(value)
     .replace(WHITESPACE, " ")
     .trim()
     .slice(0, MAX_COMPANY_NAME_LENGTH);
